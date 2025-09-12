@@ -522,6 +522,13 @@ ipcMain.on("overlay-goToSearch", (event, text, cursorPos) => {
   }
 });
 
+ipcMain.on("overlay-performSearch", (event, text) => {
+  if(!sendToOverlayChannel("searchManager-performSearch", text)) {
+    overlay.performSearch(text);
+  }
+  openOrActivateOverlayTab();
+});
+
 ipcMain.on("overlay-clearHistory", (event) => {
   if(!sendToOverlayChannel("historyManager-clearHistory")) {
     overlay.clearHistory();

@@ -57,6 +57,39 @@ class TabManager extends EventEmitter {
     }
 
     addTab(url, active) {
+        // Normalize and guard against bad or scheme-less URLs
+        const sanitizeUrl = (u) => {
+            if (!u || typeof u !== "string") return u;
+            let s = u.trim();
+            // Block legacy Heroku CDN error page entirely
+            const herokuErr = "www.herokucdn.com/error-pages/no-such-app.html";
+            const sNoScheme = s.replace(/^([a-zA-Z]+:\/\/)/, "");
+            if (sNoScheme === herokuErr || s.endsWith("/error-pages/no-such-app.html") && s.includes("herokucdn.com")) {
+                return null; // signal to drop
+            }
+            // If it's a file:// followed by a hostname (common mistake), strip file://
+            if (s.startsWith("file://") && /^(?:www\.|[a-zA-Z0-9-]+\.)[a-zA-Z0-9.-]+/.test(s.substring(7))) {
+                s = s.substring(7);
+            }
+            // If no scheme and looks like a domain, prefix https://
+            if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s)) {
+                const looksLikeDomain = /^(?:www\.|[a-zA-Z0-9-]+\.)[a-zA-Z0-9.-]+(?:\/[\s\S]*)?$/.test(s);
+                const isWindowsPath = /^[a-zA-Z]:\\/.test(s) || s.startsWith("\\\\");
+                const isUnixPath = s.startsWith("/");
+                if (looksLikeDomain) {
+                    s = "https://" + s;
+                } else if (isWindowsPath || isUnixPath) {
+                    // Leave file-like paths as-is; main logic may convert elsewhere
+                }
+            }
+            return s;
+        };
+
+        url = sanitizeUrl(url);
+        if (url == null) {
+            // Drop blocked URL silently
+            return null;
+        }
         let id = this.tabCounter++;
 
     const isInternal = (u) => {
@@ -200,7 +233,7 @@ class TabManager extends EventEmitter {
 
         this.tabs.push(tab);
 
-        tab.navigate(url);
+    tab.navigate(url);
 
     this.window.webContents.send("tabRenderer-addTab", { id, url, active });
 

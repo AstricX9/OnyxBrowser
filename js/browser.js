@@ -198,6 +198,15 @@ function goToSearch(text, selectionStart) {
   ipcRenderer.send("overlay-goToSearch", text, selectionStart);
 }
 
+// Perform search/navigation when pressing Enter in the titlebar address bar
+function handleAddressBarKeyUp(event) {
+  if (event.key === 'Enter' || event.keyCode === 13) {
+    const value = document.getElementById('search-input').value;
+    // Route directly to overlay search handler (it decides URL vs text)
+    ipcRenderer.send('overlay-performSearch', value);
+  }
+}
+
 function removeFolder(id) {
   ipcRenderer.send("overlay-removeFolder", id);
 }
@@ -527,6 +536,12 @@ function init() {
   });
 
   updateTheme();
+
+  // Wire up Enter-to-search on the titlebar address bar
+  const addr = document.getElementById('search-input');
+  if (addr) {
+    addr.addEventListener('keyup', handleAddressBarKeyUp);
+  }
 }
 
 document.onkeyup = function(e) {

@@ -50,14 +50,22 @@ class Tab extends EventEmitter {
             this.window.webContents.send("tabRenderer-setTabIcon", { id: this.id, icon: favicons[0] });
         });
         
-        this.view.webContents.on("new-window", (event, url, frameName, disposition, options, additionalFeatures, reffer) => {
-            event.preventDefault();
-            if(disposition === "background-tab") {
-                this.emit("add-tab", url, false);
-            } else {
-                this.emit("add-tab", url, true);
-            }
-        });
+        // Electron >= v14: use setWindowOpenHandler to intercept window.open/target=_blank
+        if (typeof this.view.webContents.setWindowOpenHandler === 'function') {
+            this.view.webContents.setWindowOpenHandler(({ url, disposition }) => {
+                // disposition can be 'foreground-tab', 'background-tab', 'new-window', etc.
+                const active = disposition !== 'background-tab';
+                this.emit('add-tab', url, active);
+                return { action: 'deny' };
+            });
+        } else {
+            // Fallback for very old Electron (kept for completeness)
+            this.view.webContents.on("new-window", (event, url, frameName, disposition) => {
+                event.preventDefault();
+                const active = disposition !== "background-tab";
+                this.emit("add-tab", url, active);
+            });
+        }
 
         this.view.webContents.on("did-navigate", (event, url, httpResponseCode, httpStatusText) => {
             this.window.webContents.send("tabRenderer-setTabIcon", { id: this.id, icon: __dirname + "/../../imgs/gifs/page-loading.gif" });
@@ -322,10 +330,23 @@ class Tab extends EventEmitter {
     }
 
     close() {
-        this.view.destroy();
-        this.window.webContents.send("tabRenderer-closeTab", this.id);
-
-        this.emit("close", this);
+        try {
+            // If this tab is the active BrowserView, detach it first
+            if (this.window && this.window.getBrowserView && this.window.getBrowserView() === this.view) {
+                try { this.window.setBrowserView(null); } catch (e) {}
+            }
+            // Also attempt explicit removal if supported
+            if (this.window && typeof this.window.removeBrowserView === 'function') {
+                try { this.window.removeBrowserView(this.view); } catch (e) {}
+            }
+            // In newer Electron, BrowserView has no destroy(). Clean up webContents if possible
+            if (this.view && this.view.webContents && typeof this.view.webContents.destroy === 'function') {
+                try { this.view.webContents.destroy(); } catch (e) {}
+            }
+        } finally {
+            this.window.webContents.send("tabRenderer-closeTab", this.id);
+            this.emit("close", this);
+        }
         return null;
     }
 

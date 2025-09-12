@@ -22,6 +22,7 @@ class SearchManager extends EventEmitter {
     searchSuggestContainer = null;
     searchEngines = null;
     clearSearchButton = null;
+    currentEngine = "google";
 
     constructor(searchInput, searchSuggest, searchSuggestContainer, searchEngines, clearSearchButton) {
         super();
@@ -163,7 +164,9 @@ class SearchManager extends EventEmitter {
             while (i < suggestions.length && !suggestions[i].classList.contains("active")) {
                 i++;
             }
-            text = suggestions[i].value;
+            // Fallback to the first suggestion if none is active
+            if (i >= suggestions.length) i = 0;
+            text = suggestions[i] ? suggestions[i].value : this.searchInput.value;
         }
 
         if(!background) {
@@ -174,7 +177,7 @@ class SearchManager extends EventEmitter {
             case "google":
                 this.newTab("https://google.com/search?q=" + text, background);
                 break;
-            case"'bing":
+            case "bing":
                 this.newTab("https://bing.com/search?q=" + text, background);
                 break;
             case "duckduckgo":
@@ -232,17 +235,23 @@ class SearchManager extends EventEmitter {
     }
       
     navigateSuggest(text, background) {
-        if(text !== "" && text !== null) {
-            if(isUrl(text)) {
-                this.newTab(text);
+        const val = (text ?? this.searchInput.value ?? "").toString().trim();
+        if (val.length > 0) {
+            if(isUrl(val)) {
+                this.newTab(val);
             } else {
-                let engines = this.searchEngines.getElementsByClassName("search-engine");
-                for(let i = 0; i < engines.length; i++) {
-                    if(engines[i].classList.contains("active")) {
-                        this.searchWith(text, engines[i].name, background);
-                        break;
+                // Prefer the current engine tracked in state; UI class scan as fallback
+                let engineToUse = this.currentEngine;
+                try {
+                    let engines = this.searchEngines.getElementsByClassName("search-engine");
+                    for(let i = 0; i < engines.length; i++) {
+                        if(engines[i].classList.contains("active")) {
+                            engineToUse = engines[i].name;
+                            break;
+                        }
                     }
-                }
+                } catch (e) {}
+                this.searchWith(val, engineToUse, background);
             }
         }
     }
@@ -253,6 +262,7 @@ class SearchManager extends EventEmitter {
     }
 
     setSearchEngine(engineName) {
+        if (engineName) this.currentEngine = engineName;
         let engines = this.searchEngines.getElementsByClassName("search-engine");
         for(let i = 0; i < engines.length; i++) {
             if(engines[i].name == engineName) {
