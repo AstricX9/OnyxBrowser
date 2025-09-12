@@ -26,18 +26,24 @@
   --color-blue: rgb(15, 188, 249);
   --color-orange: rgb(255, 168, 1); */
 
-  --px-radius: 0;
+  --px-radius: 10px;
   --px-font: 14px;
 
   --opacity-over: 0;
 
   --shadow-focus: inset 0 0 0 rgba(0, 0, 0, 0);
 
-  --color-back: transparent;
-  --color-element: transparent;
-  --color-border: transparent;
-  --color-second: transparent;
-  --color-top: transparent;
+  --color-back: rgba(16,16,16,0.55);
+  --color-element: rgba(24,24,24,0.55);
+  --color-border: rgba(255,255,255,0.08);
+  --color-second: rgba(255,255,255,0.06);
+  --color-top: #eaeaea;
+  --color-titlebar: rgba(20,20,20,0.45);
+
+  /* Sidebar sizing */
+  --sidebar-collapsed: 64px;
+  --sidebar-expanded: 260px;
+  --sidebar-current: var(--sidebar-collapsed);
 }
 
 * {
@@ -121,10 +127,10 @@
 #drag-zone {
   -webkit-app-region: drag;
   position: absolute;
-  left: 4px;
-  right: 4px;
-  top: 4px;
-  bottom: calc(100% - 32px);
+  left: calc(var(--sidebar-current) + 8px);
+  right: 8px;
+  top: 8px;
+  bottom: calc(100% - 48px);
   z-index: -100;
 }
 
@@ -136,14 +142,18 @@
 
 #titlebar {
   position: absolute;
-  left: 0;
+  left: var(--sidebar-current);
   right: 0;
-  top: 33px;
-  padding: 2px;
+  top: 0;
+  padding: 6px 8px;
   display: flex;
+  align-items: center;
+  gap: 6px;
   border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-back);
-  height: 41px;
+  background: linear-gradient(180deg, rgba(26,26,26,0.55), rgba(18,18,18,0.35));
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  height: 48px;
   z-index: 100;
 }
 
@@ -162,12 +172,13 @@
 #search-div {
   flex: 1;
   position: relative;
-  height: 32px;
+  height: 34px;
   border: 1px solid var(--color-border);
   background-color: var(--color-element);
   margin: 2px;
   display: inline-block;
   vertical-align: middle;
+  border-radius: var(--px-radius);
 }
 
 #search-input {
@@ -181,12 +192,12 @@
   border: none;
   text-align: center;
   margin: 0;
-  height: 30px;
+  height: 32px;
   transition: font-size 0.25s, height 0.25s;
   padding: 8px;
   color: var(--color-top);
   transition-delay: 0.5s;
-  border-radius: 0;
+  border-radius: var(--px-radius);
 }
 
 #search-input:hover {
@@ -227,10 +238,10 @@
   border: 1px dashed var(--color-border);
   vertical-align: middle;
   display: inline-block;
-  border-radius: var(--px-radius) 0 0 var(--px-radius);
-  margin: 2px;
+  border-radius: var(--px-radius);
+  margin: 4px 6px 4px 4px;
   margin-right: -3px;
-  height: 32px;
+  height: 34px;
 }
 
 #secure-icon img, #not-secure-icon img {
@@ -281,10 +292,9 @@
 
 #window-controls {
   -webkit-app-region: no-drag;
-  float: right;
-  height: 34px;
+  margin-left: auto;
+  height: 40px;
   display: grid;
-  margin: -1px;
 }
 
 #window-controls span {
@@ -321,7 +331,7 @@
   justify-content: center;
   align-items: center;
   width: 48px;
-  height: 34px;
+  height: 40px;
   color: var(--color-top);
   margin-left: -1px;
   border: 1px solid transparent;
@@ -371,7 +381,8 @@ body.blur #window-controls .button, body.blur .tabman .theme-icon {
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--color-back);
+  background: radial-gradient(1200px 800px at 20% -10%, rgba(40,40,40,0.35), rgba(18,18,18,0.35)) fixed,
+              linear-gradient(180deg, #1a1a1a, #121212) fixed;
   background-attachment: fixed;
   overflow: hidden;
   left: 0;
@@ -448,8 +459,8 @@ hr {
 
 #settings-btn {
   position: fixed;
-  right: 3px;
-  top: 36px;
+  right: 6px;
+  top: 6px;
 }
 
 /*                

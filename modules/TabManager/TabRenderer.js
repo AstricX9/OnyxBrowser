@@ -309,11 +309,16 @@ class TabRenderer extends EventEmitter {
     showTabPreview(id, title, url) {
         let tab = this.getTabById(id);
         
-        document.getElementById("tab-preview").classList.add("show");
-        document.getElementById("tab-preview").style.left = tab.offsetLeft - this.tabContainer.scrollLeft + 4 + "px";
+    const preview = document.getElementById("tab-preview");
+    preview.classList.add("show");
+    // Position the preview to the right of the sidebar and align vertically with the tab
+    const cs = getComputedStyle(document.documentElement);
+    const sidebarCurrent = parseInt(cs.getPropertyValue('--sidebar-current')) || 64;
+    preview.style.left = (sidebarCurrent + 8) + "px";
+    preview.style.top = (tab.offsetTop - this.tabContainer.scrollTop + 4) + "px";
 
-        document.getElementById("tab-preview-title").innerHTML = title;
-        document.getElementById("tab-preview-url").innerHTML = url;
+    document.getElementById("tab-preview-title").innerHTML = title;
+    document.getElementById("tab-preview-url").innerHTML = url;
     }
 }
 

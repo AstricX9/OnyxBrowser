@@ -6,7 +6,8 @@ const { BrowserView, Menu, MenuItem, clipboard } = require("electron");
 class Overlay extends EventEmitter {
     window = null;
     view = null;
-    top = 75;
+    top = 48;
+    left = 64;
     appPath = null;
 
     constructor(window, appPath) {
@@ -80,16 +81,16 @@ class Overlay extends EventEmitter {
         let size = this.window.getSize();
         if(this.window.isMaximized() && process.platform == "win32") {
             this.view.setBounds({ 
-                x: 0,
+                x: this.left - 8,
                 y: this.top, 
-                width: size[0] - 16,
-                height: size[1] - this.top - 16
+                width: size[0] - this.left - 8,
+                height: size[1] - this.top - 8
             });
         } else {
             this.view.setBounds({ 
-                x: 0,
+                x: this.left,
                 y: this.top, 
-                width: size[0],
+                width: size[0] - this.left,
                 height: size[1] - this.top 
             });
         }
@@ -200,8 +201,10 @@ class Overlay extends EventEmitter {
     setFullscreen(bool) {
         if(bool) {
             this.top = 0;
+            this.left = 0;
         } else {
-            this.top = 75;
+            this.top = 48;
+            this.left = 64;
         }
         this.refreshBounds();
     }

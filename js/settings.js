@@ -474,6 +474,63 @@ function init() {
   loadDownloadsFolder();
 
   ipcRenderer.send("request-set-cache-size");
+
+  // Sidebar resizing in settings
+  try {
+    const resizer = document.getElementById('sidebar-resizer');
+    const sidebar = document.getElementById('sidebar');
+    const root = document.documentElement;
+    if (resizer && sidebar) {
+      let dragging = false;
+      const minW = 160;
+      const maxW = 420;
+
+      // Restore sidebar width from localStorage (shared key)
+      let baselineWidth = parseInt(localStorage.getItem('onyx.sidebarWidth') || '240', 10);
+      if (!Number.isFinite(baselineWidth)) baselineWidth = 240;
+      const initWidth = Math.max(minW, Math.min(maxW, baselineWidth));
+      root.style.setProperty('--sidebar-current', initWidth + 'px');
+      // Inform main so BrowserViews can adapt immediately
+      ipcRenderer.send('ui-sidebar-resized', initWidth);
+
+      const setSidebarWidth = (wPx, persist = false) => {
+        const w = Math.max(minW, Math.min(maxW, wPx));
+        root.style.setProperty('--sidebar-current', w + 'px');
+        if (persist) {
+          baselineWidth = w;
+          try { localStorage.setItem('onyx.sidebarWidth', String(w)); } catch (e) {}
+        }
+        ipcRenderer.send('ui-sidebar-resized', w);
+      };
+
+      const onMove = (e) => {
+        if (!dragging) return;
+        setSidebarWidth(e.clientX, true);
+      };
+      const onUp = () => {
+        if (!dragging) return;
+        dragging = false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      resizer.addEventListener('mousedown', () => {
+        dragging = true;
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
+
+      // Hover-to-expand for comfort
+      const cs = getComputedStyle(document.documentElement);
+      const getExpanded = () => parseInt(cs.getPropertyValue('--sidebar-expanded')) || 320;
+      sidebar.addEventListener('mouseenter', () => {
+        const target = Math.max(baselineWidth, getExpanded());
+        setSidebarWidth(target, false);
+      });
+      sidebar.addEventListener('mouseleave', () => {
+        setSidebarWidth(baselineWidth, false);
+      });
+    }
+  } catch (e) {}
 }
 
 document.onkeyup = function(e) {

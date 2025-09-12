@@ -62,7 +62,7 @@ notificationManager.on("notif-added", (notif) => {
 let tabRenderer = new TabRenderer();
 
 let tabDrag = dragula([tabRenderer.getTabContainer()], {
-  direction: "horizontal"
+  direction: "vertical"
 });
 
 tabDrag.on("drag", function(el, source) {
@@ -272,12 +272,9 @@ function newTabDrop(event) {
 }
 
 function tabsWheel(event) {
-  if (event.deltaY < 0) {
-    tabRenderer.scrollLeft();
-  }
-  if (event.deltaY > 0) {
-    tabRenderer.scrollRight();
-  }
+  // Vertical sidebar scrolls vertically
+  const container = tabRenderer.getTabContainer();
+  container.scrollTop += event.deltaY;
 }
 
 function goHome() {
@@ -542,6 +539,64 @@ function init() {
   if (addr) {
     addr.addEventListener('keyup', handleAddressBarKeyUp);
   }
+
+  // Sidebar resizer drag
+  const resizer = document.getElementById('sidebar-resizer');
+  const sidebar = document.getElementById('tabman');
+  if (resizer && sidebar) {
+    let dragging = false;
+    const minW = 160;
+    const maxW = 420;
+    const root = document.documentElement;
+
+    // Restore saved width (baseline)
+    let baselineWidth = parseInt(localStorage.getItem('onyx.sidebarWidth') || '64', 10);
+    if (!Number.isFinite(baselineWidth)) baselineWidth = 64;
+    const initWidth = Math.max(minW, Math.min(maxW, baselineWidth));
+    root.style.setProperty('--sidebar-current', initWidth + 'px');
+    ipcRenderer.send('ui-sidebar-resized', initWidth);
+
+    // Helper to set width and notify
+    const setSidebarWidth = (widthPx, persist = false) => {
+      const w = Math.max(minW, Math.min(maxW, widthPx));
+      root.style.setProperty('--sidebar-current', w + 'px');
+      if (persist) {
+        baselineWidth = w;
+        try { localStorage.setItem('onyx.sidebarWidth', String(w)); } catch (e) {}
+      }
+      ipcRenderer.send('ui-sidebar-resized', w);
+    };
+
+    // Drag resize
+    const onMove = (e) => {
+      if (!dragging) return;
+      setSidebarWidth(e.clientX, true);
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    resizer.addEventListener('mousedown', () => {
+      dragging = true;
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    });
+
+    // Hover-to-expand
+    const cs = getComputedStyle(document.documentElement);
+    const getExpanded = () => parseInt(cs.getPropertyValue('--sidebar-expanded')) || 260;
+    sidebar.addEventListener('mouseenter', () => {
+      // Expand only if baseline smaller than expanded
+      const target = Math.max(baselineWidth, getExpanded());
+      setSidebarWidth(target, false);
+    });
+    sidebar.addEventListener('mouseleave', () => {
+      // Revert to baseline width after hover ends (unless dragging updated it)
+      setSidebarWidth(baselineWidth, false);
+    });
+  }
 }
 
 document.onkeyup = function(e) {
@@ -572,6 +627,14 @@ document.onreadystatechange = () => {
       init();
   }
 }
+
+// Apply sidebar width updates coming from main (e.g., changed in Settings)
+ipcRenderer.on('ui-apply-sidebar-width', (event, width) => {
+  const root = document.documentElement;
+  if (typeof width === 'number' && width > 0) {
+    root.style.setProperty('--sidebar-current', width + 'px');
+  }
+});
 
 /*
 .########.##.....##.########....########.##....##.########.

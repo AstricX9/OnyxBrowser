@@ -766,6 +766,31 @@ ipcMain.on("tabManager-stopFindInPage", (event, keepSelection) => {
   }
 });
 
+// Sidebar resize: update layout left offset and refresh bounds
+ipcMain.on('ui-sidebar-resized', (event, width) => {
+  try {
+    if (typeof width === 'number' && width > 0) {
+      tabManager.setLeft(width);
+      overlay.left = width;
+      // Re-apply bounds
+      if (tabManager.hasActiveTab()) {
+        const at = tabManager.getActiveTab();
+        // Inform renderer to update CSS var immediately
+        try { mainWindow.webContents.send('ui-apply-sidebar-width', width); } catch(e) {}
+        if (mainWindow.isMaximized() && process.platform === 'win32') {
+          at.setBounds(tabManager.left - 8, tabManager.top, tabManager.getWidth() - 8, tabManager.getHeight() - 8);
+        } else {
+          at.setBounds(tabManager.left, tabManager.top, tabManager.getWidth(), tabManager.getHeight());
+        }
+      } else {
+        overlay.refreshBounds();
+        // Still update renderer CSS var for titlebar/drag-zone alignment
+        try { mainWindow.webContents.send('ui-apply-sidebar-width', width); } catch(e) {}
+      }
+    }
+  } catch (e) {}
+});
+
 ipcMain.on("tabManager-requestTabPreview", (event, id) => {
   tabManager.getTabById(id).requestTabPreview();
 });

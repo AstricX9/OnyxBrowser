@@ -19,18 +19,23 @@
     --color-blue: rgb(15, 188, 249);
     --color-orange: rgb(255, 168, 1);
   
-    --px-radius: 0;
+    --px-radius: 10px;
     --px-font: 14px;
   
     --opacity-over: 0;
   
     --shadow-focus: inset 0 0 0 rgba(0, 0, 0, 0);
   
-    --color-back: transparent;
-    --color-element: transparent;
-    --color-border: transparent;
-    --color-second: transparent;
-    --color-top: transparent;
+    --color-back: rgba(16,16,16,0.55);
+    --color-element: rgba(24,24,24,0.55);
+    --color-border: rgba(255,255,255,0.08);
+    --color-second: rgba(255,255,255,0.06);
+    --color-top: #eaeaea;
+
+    /* Share sidebar variables with browser for consistency */
+    --sidebar-collapsed: 240px;
+    --sidebar-expanded: 320px;
+    --sidebar-current: var(--sidebar-collapsed);
 }
 
 * {
@@ -60,7 +65,9 @@ body {
     padding: 0;
     margin: 0;
     overflow: auto;
-    background-color: var(--color-back);
+    background: radial-gradient(1200px 800px at 20% -10%, rgba(40,40,40,0.35), rgba(18,18,18,0.35)) fixed,
+                linear-gradient(180deg, #1a1a1a, #121212) fixed;
+    background-attachment: fixed;
     border: 1px solid var(--color-border);
     min-height: 100vh;
 }
@@ -75,8 +82,13 @@ body {
 */
 
 .sidebar {
+    position: relative;
     padding: 16px;
     border-right: 1px solid var(--color-border);
+    width: var(--sidebar-current);
+    background: linear-gradient(180deg, rgba(26,26,26,0.55), rgba(18,18,18,0.55));
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
 }
 
 .sidebar button {
@@ -89,7 +101,7 @@ body {
 @media (min-width: 900px) {
     body {
         display: grid;
-        grid-template-columns: 32% 1fr;
+        grid-template-columns: var(--sidebar-current) 1fr;
         grid-template-rows: auto 1fr;
         grid-template-areas:
             "header header"
@@ -126,6 +138,9 @@ hr {
     padding: 28px;
     color: var(--color-top);
     border-left: none;
+    background: linear-gradient(180deg, rgba(26,26,26,0.35), rgba(18,18,18,0.35));
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
 }
 
 .container.active {
@@ -218,6 +233,21 @@ hr {
 
 #downloads-folder {
     word-break: break-all;
+}
+
+/* Sidebar resizer in settings */
+.sidebar-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    bottom: 0;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 1005;
+}
+.sidebar-resizer:hover {
+    background: rgba(255,255,255,0.06);
 }
 
 /*

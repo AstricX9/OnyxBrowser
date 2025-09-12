@@ -30,10 +30,11 @@ class TabManager extends EventEmitter {
         this.appPath = appPath;
         this.theme = theme;
 
-        this.left = 0; 
-        this.right = 0; 
-        this.top = 75; 
-        this.bottom = 0;
+    // Layout for vertical sidebar and compact titlebar
+    this.left = 64;  // sidebar collapsed width
+    this.right = 0; 
+    this.top = 48;   // titlebar height
+    this.bottom = 0;
 
         loadTabClosedModule().then((tabClosed) => {
             this.setTabClosedAction(tabClosed);
@@ -115,7 +116,8 @@ class TabManager extends EventEmitter {
         tab.on("activate", (activatedTab) => {
             setTimeout(() => {
                 if(this.window.isMaximized() && process.platform == "win32") {
-                    activatedTab.setBounds(this.left - 16, this.top, this.getWidth(), this.getHeight() - 16);
+                    // Keep a small inset for OS borders when maximized
+                    activatedTab.setBounds(this.left - 8, this.top, this.getWidth() - 8, this.getHeight() - 8);
                 } else {
                     activatedTab.setBounds(this.left, this.top, this.getWidth(), this.getHeight());
                 }
