@@ -289,13 +289,15 @@ ipcMain.on("main-chooseDownloadsFolder", (event, startFolder) => {
     properties: [ "openDirectory" ]
   }).then(({ canceled, filePaths, bookmarks }) => {
     if(filePaths[0]) {
-      settingsWindow.webContents.send("settings-setDownloadsFolder", filePaths[0]);
+      // Reply directly to the caller (works for both tab and window modes)
+      try { event.sender.send("settings-setDownloadsFolder", filePaths[0]); } catch(e) {}
     }
   });
 });
 
 ipcMain.on("main-getDownloadsFolder", (event) => {
-  settingsWindow.webContents.send("settings-setDownloadsFolder", app.getPath("downloads"));
+  // Guard against null settingsWindow; send to whoever asked
+  try { event.sender.send("settings-setDownloadsFolder", app.getPath("downloads")); } catch(e) {}
 });
 
 ipcMain.on("main-cancelUpdate", (event) => {
@@ -1408,8 +1410,9 @@ function showAboutWindow() {
           title: "About Onyx",
           modal: true,
           parent: mainWindow,
-          width: 480, height: 350,
-          resizable: false,
+          width: 640, height: 480,
+          minWidth: 420, minHeight: 320,
+          resizable: true,
           show: false,
           frame: winControls.systemTitlebar,
           icon: app.getAppPath() + "/imgs/icon.ico",
@@ -1454,8 +1457,9 @@ function showSettingsWindow(categoryId) {
           modal: true,
           frame: winControls.systemTitlebar,
           parent: mainWindow,
-          width: 640, height: 480,
-          resizable: false,
+          width: 900, height: 640,
+          minWidth: 600, minHeight: 420,
+          resizable: true,
           show: false,
           icon: app.getAppPath() + "/imgs/icon.ico",
           webPreferences: {

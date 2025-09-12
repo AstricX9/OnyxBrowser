@@ -20,7 +20,6 @@ const loadFileFromJsonFolder = require("../modules/loadFileFromJsonFolder.js");
 const loadTheme = require("../modules/loadTheme.js");
 const applyTheme = require("../modules/applyTheme.js");
 const bytesToSize = require("../modules/bytesToSize.js");
-const applyWinControls = require("../modules/applyWinControls.js");
 const loadLastTabModule = require("../modules/loadLastTab.js");
 const loadSearchEngineModule = require("../modules/loadSearchEngine.js");
 const loadStartupModule = require("../modules/loadStartup.js");
@@ -463,17 +462,6 @@ ipcRenderer.on("settings-showCategory", (event, categoryId) => {
 */
 
 function init() {
-  loadWinControlsModule().then((winControls) => {
-    if (window.top === window) {
-      applyWinControls(winControls.systemTitlebar, "only-close");
-      document.getElementById("system-titlebar-checkbox").checked = winControls.systemTitlebar;
-    } else {
-      const tz = document.getElementById("drag-zone");
-      const tb = document.getElementById("titlebar");
-      if (tz) tz.style.display = "none";
-      if (tb) tb.style.display = "none";
-    }
-  });
 
   updateTheme();
 

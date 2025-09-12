@@ -165,17 +165,6 @@ ipcRenderer.on("window-focus", (event) => {
 */
 
 function init() {
-  loadWinControlsModule().then((winControls) => {
-    // In tab mode, hide titlebar controls; otherwise apply window controls
-    if (window.top === window) {
-      applyWinControls(winControls.systemTitlebar, "only-close");
-    } else {
-      const tz = document.getElementById("drag-zone");
-      const tb = document.getElementById("titlebar");
-      if (tz) tz.style.display = "none";
-      if (tb) tb.style.display = "none";
-    }
-  });
 
   updateTheme();
 
