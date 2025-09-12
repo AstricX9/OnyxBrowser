@@ -33,7 +33,8 @@ class Tab extends EventEmitter {
         this.view = new BrowserView({
             webPreferences: {
                 preload: appPath + "/js/webview.js",
-                nodeIntegration
+                nodeIntegration,
+                contextIsolation: nodeIntegration ? false : true
             }
         });
         this.view.setAutoResize({

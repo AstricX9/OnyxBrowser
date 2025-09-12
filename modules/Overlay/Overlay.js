@@ -17,7 +17,9 @@ class Overlay extends EventEmitter {
         
         this.view = new BrowserView({
             webPreferences: {
-                nodeIntegration: true
+                nodeIntegration: true,
+                contextIsolation: false,
+                sandbox: false
             }
         });
         this.view.setAutoResize({
@@ -57,7 +59,7 @@ class Overlay extends EventEmitter {
                 if(params.y < 320) {
                     let mi = new MenuItem({
                         label: "Paste and search", 
-                        icon: appPath + "/imgs/icons16/zoom.png", 
+                        icon: this.appPath + "/imgs/icons16/zoom.png", 
                         enabled: params.editFlags.canPaste, 
                         click: () => { 
                             this.performSearch(clipboard.readText()); }

@@ -1417,7 +1417,8 @@ function showAboutWindow() {
           frame: winControls.systemTitlebar,
           icon: app.getAppPath() + "/imgs/icon.ico",
           webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
           },
           backgroundColor: backgroundColor
         });
@@ -1463,7 +1464,8 @@ function showSettingsWindow(categoryId) {
           show: false,
           icon: app.getAppPath() + "/imgs/icon.ico",
           webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
           },
           backgroundColor: backgroundColor
         });
@@ -1517,7 +1519,8 @@ function showMainWindow() {
           // show: false,
           icon: app.getAppPath() + "/imgs/icon.ico",
           webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
           },
           backgroundColor: backgroundColor
         });
@@ -1719,7 +1722,7 @@ function showWelcomeWindow() {
   mainWindow.webContents.send('action-esc');
   
   loadTheme().then(function(theme) {
-    welcomeWindow = new BrowserWindow({
+  welcomeWindow = new BrowserWindow({
       width: 480, height: 350,
       frame: false,
       show: false,
@@ -1730,7 +1733,8 @@ function showWelcomeWindow() {
       maximizable: false,
       resizable: false,
       webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        contextIsolation: false
       },
       backgroundColor: theme.colorBack
     }); 

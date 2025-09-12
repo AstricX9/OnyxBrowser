@@ -256,7 +256,17 @@ function showItemInFolder(path) {
 }
 
 function openItem(path) {
-  shell.openItem(path);
+  // shell.openItem is deprecated; use shell.openPath which returns an error message on failure
+  const result = shell.openPath(path);
+  if (result && typeof result.then === 'function') {
+    result.then((errorMessage) => {
+      if (errorMessage) {
+        ipcRenderer.send("main-addStatusNotif", { text: `Couldn't open file: ${errorMessage}` , type: "error" });
+      }
+    }).catch((err) => {
+      ipcRenderer.send("main-addStatusNotif", { text: `Couldn't open file: ${err?.message || err}` , type: "error" });
+    });
+  }
 }
 
 function pauseDownload(id) {
