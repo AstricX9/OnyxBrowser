@@ -1,5 +1,5 @@
 const saveFileToJsonFolder = require("../modules/saveFileToJsonFolder.js");
-const ppath = require('persist-path')('Ferny');
+const ppath = require('persist-path')('Onyx');
 const fs = require("fs");
 
 function loadHomePage() {

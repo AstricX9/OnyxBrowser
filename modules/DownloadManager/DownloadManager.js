@@ -1,7 +1,7 @@
 "use strict";
 
 const EventEmitter = require("events");
-const ppath = require("persist-path")("Ferny");
+const ppath = require("persist-path")("Onyx");
 const readlPromise = require("readline-promise").default;
 const prependFile = require("prepend-file");
 const fs = require("fs");

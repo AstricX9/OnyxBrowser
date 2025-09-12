@@ -1,5 +1,5 @@
 const fs = require("fs");
-const ppath = require('persist-path')('Ferny');
+const ppath = require('persist-path')('Onyx');
 
 function saveFileToJsonFolder(subfolder, fileName, data) {
     return new Promise((resolve, reject) => {

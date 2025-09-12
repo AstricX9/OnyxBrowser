@@ -1,8 +1,8 @@
 {
-  "name": "ferny",
-  "productName": "Ferny",
-  "companyName": "Module Art",
-  "description": "Your favorite web browser",
+  "name": "onyx",
+  "productName": "Onyx",
+  "companyName": "Onyx",
+  "description": "Onyx web browser",
   "version": "3.2.0",
   "license": "GPL-3.0",
   "keywords": [
@@ -30,12 +30,12 @@
     }
   ],
   "main": "main.js",
-  "homepage": "https://moduleart.github.io/ferny",
+  "homepage": "https://github.com/AstricX9/OnyxBrowser",
   "bugs": {
-    "url": "https://github.com/ModuleArt/ferny/issues"
+    "url": "https://github.com/AstricX9/OnyxBrowser/issues"
   },
   "repository": {
-    "url": "https://github.com/ModuleArt/ferny"
+    "url": "https://github.com/AstricX9/OnyxBrowser"
   },
   "scripts": {
     "start": "electron .",
@@ -68,20 +68,20 @@
     "electron-builder": "^20.44.4"
   },
   "build": {
-    "appId": "com.moduleart.ferny",
+  "appId": "com.astricx9.onyx",
     "copyright": "Copyright © 2019 Module Art",
     "fileAssociations": [
       {
         "ext": "htm",
         "name": "Web page document [HTM]",
-        "description": "Web page document [HTM] - Ferny",
+  "description": "Web page document [HTM] - Onyx",
         "role": "Viewer",
         "icon": "imgs/file.ico"
       },
       {
         "ext": "html",
         "name": "Web page document [HTML]",
-        "description": "Web page document [HTML] - Ferny",
+  "description": "Web page document [HTML] - Onyx",
         "role": "Viewer",
         "icon": "imgs/file.ico"
       }
@@ -96,8 +96,8 @@
     "win": {
       "publish": {
         "provider": "github",
-        "repo": "ferny",
-        "owner": "ModuleArt",
+        "repo": "OnyxBrowser",
+        "owner": "AstricX9",
         "host": "github.com",
         "protocol": "https",
         "releaseType": "release"

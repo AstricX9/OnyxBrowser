@@ -1,4 +1,4 @@
-const ppath = require("persist-path")("Ferny");
+const ppath = require("persist-path")("Onyx");
 const fs = require("fs");
 
 const saveFileToJsonFolder = require("../modules/saveFileToJsonFolder.js");

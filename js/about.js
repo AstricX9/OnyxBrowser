@@ -39,7 +39,7 @@ function loadAbout() {
 }
 
 function openIssuesPage() {
-  ipcRenderer.send("tabManager-addTab", "https://github.com/ModuleArt/ferny/issues", true);
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9/OnyxBrowser/issues", true);
 }
 
 function openDonatePage() {
@@ -47,23 +47,24 @@ function openDonatePage() {
 }
 
 function openDeveloperPage() {
-  ipcRenderer.send("tabManager-addTab", "https://moduleart.github.io/", true);
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9", true);
 }
 
 function openAppPage() {
-  ipcRenderer.send("tabManager-addTab", "https://moduleart.github.io/ferny", true);
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9/OnyxBrowser", true);
 }
 
 function openReleasesPage() {
-  ipcRenderer.send("tabManager-addTab", "https://github.com/ModuleArt/ferny/releases", true);
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9/OnyxBrowser/releases", true);
 }
 
 function openPlannerPage() {
-  ipcRenderer.send("tabManager-addTab", "https://trello.com/b/cb5lXUgS/ferny", true);
+  // No planner board for Onyx currently; open issues as roadmap
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9/OnyxBrowser/issues", true);
 }
 
 function openSourcePage() {
-  ipcRenderer.send("tabManager-addTab", "https://github.com/ModuleArt/ferny", true);
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9/OnyxBrowser", true);
 }
 
 function openElectronPage() {
@@ -83,7 +84,7 @@ function openDiscordPage() {
 }
 
 function openLicensePage() {
-  ipcRenderer.send("tabManager-addTab", "https://github.com/ModuleArt/ferny/blob/master/LICENSE", true);
+  ipcRenderer.send("tabManager-addTab", "https://github.com/AstricX9/OnyxBrowser/blob/main/LICENSE", true);
 }
 
 function checkForUpdates() {

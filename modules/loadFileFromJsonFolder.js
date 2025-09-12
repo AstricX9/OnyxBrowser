@@ -1,5 +1,5 @@
 const fs = require("fs");
-const ppath = require("persist-path")("Ferny");
+const ppath = require("persist-path")("Onyx");
 
 const checkFileExists = require(__dirname + "/checkFileExists.js");
 

@@ -15,7 +15,7 @@ const os = require("os");
 const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
-const ppath = require("persist-path")("Ferny");
+const ppath = require("persist-path")("Onyx");
 
 const saveFileToJsonFolder = require(app.getAppPath() + "/modules/saveFileToJsonFolder.js");
 const loadTheme = require(app.getAppPath() + "/modules/loadTheme.js");
@@ -1300,7 +1300,7 @@ function sideMenuConstructor(hasActiveTab, hasTabs) {
       //   showWelcomeWindow(); 
       } }, { type: "separator" }, { 
       label: "Report an issue", icon: app.getAppPath() + "/imgs/icons16/bug-report.png", accelerator: "CmdOrCtrl+Shift+I", click: () => { 
-        tabManager.addTab("https://github.com/ModuleArt/ferny/issues", true);
+        tabManager.addTab("https://github.com/AstricX9/OnyxBrowser/issues", true);
       } }
     ] }, { 
     label: "More", icon: app.getAppPath() + "/imgs/icons16/more.png", submenu: [{ 
@@ -1364,7 +1364,7 @@ function sideMenuConstructor(hasActiveTab, hasTabs) {
         } }
       ] }
     ] }, { type: "separator" }, { 
-    label: "Quit Ferny", icon: app.getAppPath() + "/imgs/icons16/exit.png", accelerator: "CmdOrCtrl+Shift+Q", click: () => { 
+    label: "Quit Onyx", icon: app.getAppPath() + "/imgs/icons16/exit.png", accelerator: "CmdOrCtrl+Shift+Q", click: () => { 
       app.quit(); 
     } }
   ];
@@ -1405,7 +1405,7 @@ function showAboutWindow() {
 
       loadWinControlsModule().then((winControls) => {
         aboutWindow = new BrowserWindow({
-          title: "About Ferny",
+          title: "About Onyx",
           modal: true,
           parent: mainWindow,
           width: 480, height: 350,

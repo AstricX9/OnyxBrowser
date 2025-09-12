@@ -9,7 +9,7 @@
 */
 
 const { ipcRenderer } = require('electron');
-const ppath = require('persist-path')('Ferny');
+const ppath = require('persist-path')('Onyx');
 const fs = require("fs");
 
 /*
@@ -140,11 +140,11 @@ function changeWelcome(bool) {
 }
 
 function openAppPage() {
-  ipcRenderer.send('request-open-url-in-new-tab', "https://moduleart.github.io/ferny");
+  ipcRenderer.send('request-open-url-in-new-tab', "https://github.com/AstricX9/OnyxBrowser");
 }
 
 function openDeveloperPage() {
-  ipcRenderer.send('request-open-url-in-new-tab', "https://moduleart.github.io/");
+  ipcRenderer.send('request-open-url-in-new-tab', "https://github.com/AstricX9");
 }
 
 function loadStartPage() {
