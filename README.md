@@ -28,6 +28,10 @@ See the full plan in the roadmap: `/docs/ROADMAP.md`.
 
 ## Screenshots
 
+<p align="center">
+  <img src="/docs/imgs/userinterface-preview/user-interface.png" alt="User Interface overview" width="100%"/>
+</p>
+
 <p>
   <img src="/docs/imgs/ferny/overlay.png" alt="Overlay" width="45%"/>
   <img src="/docs/imgs/ferny/search.png" alt="Search" width="45%"/>
