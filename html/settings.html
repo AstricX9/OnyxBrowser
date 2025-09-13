@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="../css/modules/input.css">
         <link rel="stylesheet" href="../css/modules/checkbox.css">
         <link rel="stylesheet" href="../css/modules/radio.css">
+    <link rel="stylesheet" href="../css/modules/select.css">
         <link rel="stylesheet" href="../css/modules/link.css">
         <link rel="stylesheet" href="../css/settings.css">
     </head>
@@ -33,6 +34,10 @@
             <button class="nav-btn with-border" onclick="showCategory('search-engine')">
                 <img name="search-16" class="theme-icon">
                 <label>Search engine</label>
+            </button>
+            <button class="nav-btn with-border" onclick="showCategory('shortcuts')">
+                <img name="key-16" class="theme-icon">
+                <label>Shortcuts</label>
             </button>
             <button class="nav-btn with-border" onclick="showCategory('startup')">
                 <img name="launch-16" class="theme-icon">
@@ -55,6 +60,27 @@
                 <label>Clear browsing data</label>
             </button>
         </div>
+
+                <div class="container" id="shortcuts">
+                        <label class="title">Shortcuts</label>
+                        <label class="nav-label">Customize keyboard shortcuts for common actions.</label>
+                        <hr>
+                                    <label class="nav-label">Spotlight (Quick Search):</label>
+                                    <div class="search-div">
+                                        <select id="spotlight-shortcut-select" aria-label="Spotlight shortcut">
+                                            <option value="CommandOrControl+K">Ctrl/Cmd + K (Default)</option>
+                                            <option value="CommandOrControl+Shift+K">Ctrl/Cmd + Shift + K</option>
+                                            <option value="Alt+K">Alt + K</option>
+                                            <option value="CommandOrControl+Alt+K">Ctrl/Cmd + Alt + K</option>
+                                            <option value="F6">F6</option>
+                                        </select>
+                                        <button class="nav-btn with-border" onclick="saveSpotlightShortcut()">
+                                            <img class="theme-icon" name="save-16">
+                                            <label>Save</label>
+                                        </button>
+                                    </div>
+                                    <label class="nav-label" id="spotlight-shortcut-help">Choose a shortcut. If the current shortcut isn’t listed, it will appear as “Custom”.</label>
+                </div>
 
         <div class="container active" id="themes">
             <label class="title">Theme</label>

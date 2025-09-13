@@ -23,6 +23,13 @@ Core loop: search → focus → browse with calm aesthetics.
 - Customization Lite (theme + background picker)
 - Privacy Baseline (easy on/off, friendly status)
 
+Progress (as of 2025-09-13):
+- [x] Quick Search palette (Ctrl/Cmd+K) delivered as a dedicated Spotlight window using `SearchManager` (suggestions, engines). Closes on outside click/ESC; DevTools hotkey for debugging. Follow-ups: deepen theme token integration, add gentle open/close animation, measure latency.
+- [x] Focus / Flow Mode toggle (toolbar + Ctrl/Cmd+Shift+F). Accessible; respects reduced motion. Follow-ups: persist per board; add dimming intensity control.
+- [ ] Ambient Aesthetics polish (foundations exist: themes/background assets). To add: picker UX, perf pass, subtle motion.
+- [ ] Customization Lite (theme + background picker UI) — not started.
+- [ ] Privacy Baseline (toggle, per-site allowlist, friendly status) — not started.
+
 Success criteria (MVP):
 - New user can search (Ctrl/Cmd+K), open results, switch focus mode, change theme/background without docs.
 - No jank on a modest laptop: search overlay opens <150ms, 60fps animations, memory stable over 30 min.
@@ -56,6 +63,10 @@ Each brief includes UX snapshot, tech notes, dependencies, definition of done (D
   - Accessible: tab/arrow navigation, screen-reader labels, high-contrast compatible.
   - 60fps open/close animation; passes perf budget.
 - KPIs: Overlay open latency, result click-through, abandonment rate, key-only navigation completion.
+
+Status (v0 implemented):
+- Implemented as a dedicated Spotlight window bound to Ctrl/Cmd+K, reusing `SearchManager` for suggestions/engines. Close on outside click/ESC. DevTools toggle for debugging.
+- Pending: history-backed suggestions, perf budget validation/telemetry, refined animation and full theme-token styling.
 
 ### 2) Workspace Boards
 - UX: Notion/Pinterest-like boards: named groups, large previews, tidy grid. Drag tabs to boards. Quick switcher.
@@ -122,6 +133,9 @@ Each brief includes UX snapshot, tech notes, dependencies, definition of done (D
   - Toggleable via toolbar and shortcut; persists per board.
   - Dimming configurable; respects reduced motion.
 - KPIs: Focus mode activation rate, average focus session, distraction toggles per hour.
+
+Status (v0 implemented):
+- Implemented toggle via toolbar and Ctrl/Cmd+Shift+F. Respects reduced motion; accessible. Persistence per board and fine-grained dimming controls are planned.
 
 ### 9) Customization Without Overload
 - UX: Slack-like theme picker + background gallery. Clear presets; one advanced panel hidden behind “Advanced”.

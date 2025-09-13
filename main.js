@@ -9,7 +9,8 @@
  #    # ######  ### #  ####  # #    # ######
 */
 
-const { ipcMain, app, Menu, BrowserWindow, dialog, clipboard, session, shell } = require("electron");
+const { ipcMain, app, Menu, BrowserWindow, dialog, clipboard, session, shell, globalShortcut } = require("electron");
+const log = require("electron-log");
 const { autoUpdater } = require("electron-updater");
 const os = require("os");
 const fs = require("fs");
@@ -24,6 +25,7 @@ const loadStartupModule = require(app.getAppPath() + "/modules/loadStartup.js");
 const loadHomePage = require(app.getAppPath() + "/modules/loadHomePage.js");
 const loadBounds = require(app.getAppPath() + "/modules/loadBounds.js");
 const loadWinControlsModule = require(app.getAppPath() + "/modules/loadWinControls.js");
+const loadSpotlightShortcut = require(app.getAppPath() + "/modules/loadSpotlightShortcut.js");
 
 const TabManager = require(app.getAppPath() + "/modules/TabManager/TabManager.js");
 const Overlay = require(app.getAppPath() + "/modules/Overlay/Overlay.js");
@@ -43,6 +45,7 @@ let mainWindow = null;
 let welcomeWindow = null;
 let aboutWindow = null;
 let settingsWindow = null;
+let spotlightWindow = null;
 
 let downloads = [];
 let downloadCounter = 0;
@@ -53,6 +56,15 @@ let updateCancellationToken = null;
 let tabManager = null;
 let overlay = null;
 let overlayTabWebContents = null;
+let pendingOverlaySearchFocus = false; // kept for overlay-related flows; not used for Spotlight
+let spotlightCombo = null; // current registered accelerator for Spotlight
+
+const DEBUG_KEYS = process.env.NODE_ENV !== 'production';
+function debugStatus(text) {
+  if (!DEBUG_KEYS) return;
+  try { log.info(text); } catch (e) {}
+  try { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("notificationManager-addStatusNotif", { type: "info", text: `[Debug] ${text}` }); } catch (e) {}
+}
 
 /*
   ####  # #    #  ####  #      ######    # #    #  ####  #####   ##   #    #  ####  ######
@@ -102,6 +114,11 @@ app.on("window-all-closed", () => {
   if(process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on("will-quit", () => {
+  debugStatus("will-quit: unregistering global shortcuts");
+  try { globalShortcut.unregisterAll(); } catch (e) { debugStatus(`Failed to unregister shortcuts: ${e?.message || e}`); }
 });
 
 app.on("ready", () => {
@@ -240,6 +257,46 @@ app.on("ready", () => {
   loadDownloadsFolder();
   showMainWindow();
   // loadWelcome();
+
+  // Global accelerators
+  try {
+    // Spotlight toggle (Quick Search) as a dedicated window — configurable
+    loadSpotlightShortcut().then((combo) => {
+      try { globalShortcut.register(combo, () => {
+        debugStatus(`${combo} pressed → toggle Spotlight window`);
+        try { toggleSpotlightWindow(); } catch (e) { debugStatus(`Failed to toggle Spotlight: ${e?.message || e}`); }
+      }); } catch(e) {}
+      spotlightCombo = combo;
+      const spotOk = globalShortcut.isRegistered(combo);
+      debugStatus(`Global shortcut registered (Spotlight ${combo}): ${spotOk}`);
+      try { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('spotlight-shortcut-state', spotOk); } catch(e) {}
+      try { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('spotlight-shortcut-combo', combo); } catch(e) {}
+    });
+
+    // Spotlight DevTools toggle (for debugging Spotlight window)
+    globalShortcut.register("CommandOrControl+Alt+K", () => {
+      debugStatus("Ctrl/Cmd+Alt+K pressed → toggle Spotlight DevTools");
+      try {
+        if (spotlightWindow && !spotlightWindow.isDestroyed()) {
+          if (spotlightWindow.webContents.isDevToolsOpened()) {
+            spotlightWindow.webContents.closeDevTools();
+          } else {
+            spotlightWindow.webContents.openDevTools({ mode: "detach" });
+          }
+        } else {
+          debugStatus("Spotlight window not available to open DevTools");
+        }
+      } catch (e) { debugStatus(`Failed to toggle Spotlight DevTools: ${e?.message || e}`); }
+    });
+    debugStatus(`Global shortcut registered (Ctrl/Cmd+Alt+K): ${globalShortcut.isRegistered("CommandOrControl+Alt+K")}`);
+
+    // Focus/Flow Mode toggle
+    globalShortcut.register("CommandOrControl+Shift+F", () => {
+      debugStatus("Ctrl/Cmd+Shift+F pressed → toggling Focus Mode (IPC)");
+      try { mainWindow.webContents.send("browser-toggle-focus"); } catch (e) { debugStatus(`Failed to send Focus IPC: ${e?.message || e}`); }
+    });
+    debugStatus(`Global shortcut registered (Ctrl/Cmd+Shift+F): ${globalShortcut.isRegistered("CommandOrControl+Shift+F")}`);
+  } catch (e) {}
 });
 
 /*
@@ -320,6 +377,29 @@ ipcMain.on("main-addStatusNotif", (event, arg) => {
 
 ipcMain.on("main-addQuestNotif", (event, arg) => {
   mainWindow.webContents.send("notificationManager-addQuestNotif", arg);
+});
+
+// Rebind Spotlight shortcut from Settings
+ipcMain.on('settings-set-spotlight-shortcut', (event, combo) => {
+  try {
+    if (spotlightCombo) globalShortcut.unregister(spotlightCombo);
+  } catch (e) { debugStatus(`Unregister previous shortcut failed: ${e?.message || e}`); }
+  try {
+    globalShortcut.register(combo, () => {
+      debugStatus(`${combo} pressed → toggle Spotlight window`);
+      try { toggleSpotlightWindow(); } catch (e) { debugStatus(`Failed to toggle Spotlight: ${e?.message || e}`); }
+    });
+  } catch (e) { debugStatus(`Register shortcut failed: ${e?.message || e}`); }
+  const ok = globalShortcut.isRegistered(combo);
+  if (ok) {
+    try { spotlightCombo = combo; } catch(_) {}
+    try { saveFileToJsonFolder(null, 'spotlight-shortcut', combo); } catch(_) {}
+    mainWindow.webContents.send('notificationManager-addStatusNotif', { type: 'success', text: `Spotlight shortcut set to ${combo}` });
+  } else {
+    mainWindow.webContents.send('notificationManager-addStatusNotif', { type: 'error', text: `Could not register shortcut: ${combo}` });
+  }
+  try { mainWindow.webContents.send('spotlight-shortcut-state', ok); } catch(e) {}
+  try { mainWindow.webContents.send('spotlight-shortcut-combo', combo); } catch(e) {}
 });
 
 ipcMain.on("main-checkForUpdates", (event, arg) => {
@@ -648,6 +728,12 @@ ipcMain.on("tabManager-newBackgroundTab", (event) => {
 
 ipcMain.on("tabManager-addTab", (event, url, active) => {
   tabManager.addTab(url, active);
+  // If request came from Spotlight window, close it after opening the tab
+  try {
+    if (spotlightWindow && !spotlightWindow.isDestroyed() && event.sender === spotlightWindow.webContents) {
+      closeSpotlightWindow();
+    }
+  } catch (e) {}
 });
 
 ipcMain.on("tabManager-activateTab", (event, id) => {
@@ -895,6 +981,10 @@ function initTabManager(theme) {
     try {
       overlayTabWebContents = tab.getWebContents();
       mainWindow.webContents.send("overlay-toggleButton", true);
+      if (pendingOverlaySearchFocus) {
+        try { sendToOverlayChannel("searchManager-goToSearch", "", 0); } catch (e) {}
+        pendingOverlaySearchFocus = false;
+      }
     } catch (e) {}
   });
 }
@@ -1447,6 +1537,79 @@ function showAboutWindow() {
       });
     });
   }
+}
+
+// Spotlight window controls
+function toggleSpotlightWindow() {
+  try {
+    if (spotlightWindow && !spotlightWindow.isDestroyed() && spotlightWindow.isVisible()) {
+      closeSpotlightWindow();
+    } else {
+      showSpotlightWindow();
+    }
+  } catch (e) { debugStatus(`toggleSpotlightWindow error: ${e?.message || e}`); }
+}
+
+function closeSpotlightWindow() {
+  try {
+    if (spotlightWindow && !spotlightWindow.isDestroyed()) {
+      spotlightWindow.close();
+    }
+  } catch (e) { debugStatus(`closeSpotlightWindow error: ${e?.message || e}`); }
+}
+
+function showSpotlightWindow() {
+  try {
+    if (spotlightWindow && !spotlightWindow.isDestroyed()) {
+      spotlightWindow.show();
+      spotlightWindow.focus();
+      return;
+    }
+
+    loadTheme().then(({theme, dark}) => {
+      const backgroundColor = dark ? theme.dark.colorBack : theme.light.colorBack;
+
+      loadWinControlsModule().then((winControls) => {
+        spotlightWindow = new BrowserWindow({
+          title: "Quick Search",
+          parent: mainWindow,
+          modal: false,
+          width: 760, height: 200,
+          resizable: false,
+          minimizable: false,
+          maximizable: false,
+          show: false,
+          frame: false,
+          transparent: true,
+          icon: app.getAppPath() + "/imgs/icon.ico",
+          skipTaskbar: true,
+          alwaysOnTop: true,
+          webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+          },
+          backgroundColor: '#00000000'
+        });
+
+        spotlightWindow.loadFile(app.getAppPath() + "/html/spotlight.html");
+
+        spotlightWindow.once("ready-to-show", () => {
+          try { spotlightWindow.center(); } catch (e) {}
+          spotlightWindow.show();
+          spotlightWindow.focus();
+        });
+
+        spotlightWindow.on("blur", () => {
+          // Close when clicking outside / losing focus
+          try { closeSpotlightWindow(); } catch (e) {}
+        });
+
+        spotlightWindow.on("closed", () => {
+          try { spotlightWindow = null; } catch (e) {}
+        });
+      });
+    });
+  } catch (e) { debugStatus(`showSpotlightWindow error: ${e?.message || e}`); }
 }
 
 function showSettingsWindow(categoryId) {

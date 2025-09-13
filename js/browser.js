@@ -19,6 +19,7 @@ const loadWinControlsModule = require("../modules/loadWinControls.js");
 
 const NotificationManager = require("../modules/NotificationManager/NotificationManager.js");
 const TabRenderer = require("../modules/TabManager/TabRenderer.js");
+const SearchManager = require("../modules/SearchManager/SearchManager.js");
 
 /*
  ###### #    # #    #  ####              ##### #    # ###### #    # ######  ####
@@ -205,6 +206,23 @@ function handleAddressBarKeyUp(event) {
     // Route directly to overlay search handler (it decides URL vs text)
     ipcRenderer.send('overlay-performSearch', value);
   }
+}
+
+// Focus / Flow Mode toggle
+let isFocusMode = false;
+function setFocusMode(next) {
+  isFocusMode = !!next;
+  if (isFocusMode) {
+    document.body.classList.add('focus-mode');
+  } else {
+    document.body.classList.remove('focus-mode');
+  }
+  const btn = document.getElementById('focus-btn');
+  if (btn) btn.setAttribute('aria-pressed', String(isFocusMode));
+}
+
+function toggleFocusMode() {
+  setFocusMode(!isFocusMode);
 }
 
 function removeFolder(id) {
@@ -420,6 +438,42 @@ ipcRenderer.on("window-unmaximize", (event) => {
   document.getElementById("restore-btn").style.display = "none";
 });
 
+// IPC from main to toggle focus mode (global shortcut)
+ipcRenderer.on('browser-toggle-focus', () => {
+  try { notificationManager.addStatusNotif('[Debug] Received browser-toggle-focus', 'info'); } catch (e) {}
+  toggleFocusMode();
+});
+
+// Spotlight state and helpers
+let spotlightOpen = false;
+let spotlightSearch = null;
+let spotlightShortcutRegistered = true; // assume true until main tells us
+function openSpotlight(prefillText = "", cursorPos = null) {
+  const root = document.getElementById('spotlight');
+  if (!root) return;
+  root.style.display = '';
+  root.setAttribute('aria-hidden', 'false');
+  spotlightOpen = true;
+  try {
+    if (!spotlightSearch) initSpotlight();
+    if (prefillText != null) {
+      spotlightSearch.goToSearch(prefillText, cursorPos);
+    }
+  } catch(e) {}
+}
+
+function closeSpotlight() {
+  const root = document.getElementById('spotlight');
+  if (!root) return;
+  root.setAttribute('aria-hidden', 'true');
+  root.style.display = 'none';
+  spotlightOpen = false;
+}
+
+function toggleSpotlight() {
+  if (spotlightOpen) closeSpotlight(); else openSpotlight('');
+}
+
 /*
  # #####   ####               ####  #    # ###### #####  #        ##   #   #
  # #    # #    #             #    # #    # #      #    # #       #  #   # #
@@ -542,6 +596,24 @@ function init() {
   if (addr) {
     addr.addEventListener('keyup', handleAddressBarKeyUp);
   }
+
+  // Ensure button reflects initial state
+  setFocusMode(false);
+
+  // Fallback in-window shortcut: Ctrl/Cmd+K toggles in-page Spotlight ONLY if global shortcut failed to register
+  window.addEventListener('keydown', (e) => {
+    const key = (e.key || '').toLowerCase();
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.altKey && !e.shiftKey && key === 'k' && !spotlightShortcutRegistered) {
+      e.preventDefault();
+      toggleSpotlight();
+    }
+    // ESC closes spotlight
+    if (e.key === 'Escape' && spotlightOpen) {
+      e.preventDefault();
+      closeSpotlight();
+    }
+  }, true);
 }
 
 document.onkeyup = function(e) {
@@ -572,6 +644,49 @@ document.onreadystatechange = () => {
       init();
   }
 }
+
+// Initialize Spotlight wiring and SearchManager instance
+function initSpotlight() {
+  const input = document.getElementById('spotlight-input');
+  const suggest = document.getElementById('spotlight-suggest');
+  const suggestContainer = document.getElementById('spotlight-suggest-container');
+  const engines = document.getElementById('spotlight-engines');
+  const clearBtn = document.getElementById('spotlight-clear');
+  const goBtn = document.getElementById('spotlight-go');
+
+  if (!(input && suggest && suggestContainer && engines && clearBtn && goBtn)) return;
+
+  spotlightSearch = new SearchManager(input, suggest, suggestContainer, engines, clearBtn);
+  // mirror icon behavior used in overlay
+  try {
+    const iconEl = document.getElementById('spotlight-search-icon');
+    const active = engines.getElementsByClassName('active')[0];
+    if (iconEl && active) {
+      iconEl.src = active.getElementsByTagName('img')[0].src;
+    }
+  } catch (e) {}
+
+  goBtn.addEventListener('click', () => {
+    try { spotlightSearch.performSearch(input.value); } finally { closeSpotlight(); }
+  });
+
+  // Enter triggers search (SearchManager handles Enter on input as well)
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      try { spotlightSearch.performSearch(input.value); } finally { closeSpotlight(); }
+    }
+  });
+
+  // Click outside to close
+  const backdrop = document.querySelector('#spotlight .spotlight-backdrop');
+  if (backdrop) backdrop.addEventListener('click', closeSpotlight);
+}
+
+// IPC from main: state of global shortcut registration for Ctrl/Cmd+K
+ipcRenderer.on('spotlight-shortcut-state', (_evt, ok) => {
+  spotlightShortcutRegistered = !!ok;
+});
 
 /*
 .########.##.....##.########....########.##....##.########.

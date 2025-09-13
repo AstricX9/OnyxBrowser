@@ -382,6 +382,39 @@ body {
   border: 1px solid var(--color-border);
 }
 
+/* Focus / Flow Mode: dim chrome, keep content area readable */
+body.focus-mode #titlebar,
+body.focus-mode .tabman,
+body.focus-mode #notif-panel,
+body.focus-mode #settings-btn {
+  filter: blur(2px) brightness(0.8);
+  transition: filter 120ms ease, opacity 120ms ease;
+}
+
+body.focus-mode #titlebar:hover,
+body.focus-mode .tabman:hover,
+body.focus-mode #settings-btn:hover {
+  filter: blur(0px) brightness(1);
+}
+
+/* Optional subtle vignette */
+body.focus-mode::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.15) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.focus-mode #titlebar,
+  body.focus-mode .tabman,
+  body.focus-mode #notif-panel,
+  body.focus-mode #settings-btn {
+    transition: none;
+  }
+}
+
 /* theme icon */
 .theme-icon {
   opacity: 0;
@@ -491,3 +524,81 @@ hr {
     #   #    # #         #      #   ## #    # 
     #   #    # ######    ###### #    # #####  
 */
+
+/* Spotlight (Quick Search) */
+#spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+}
+
+#spotlight[aria-hidden="true"] { display: none; }
+
+#spotlight .spotlight-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+}
+
+#spotlight .spotlight-panel {
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%);
+  width: min(720px, 92vw);
+  background: var(--color-element);
+  border: 1px solid var(--color-border);
+  border-radius: var(--px-radius);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  animation: append-center 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #spotlight .spotlight-panel { animation: none; }
+}
+
+.spotlight-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+#spotlight-search-icon {
+  width: 16px;
+  height: 16px;
+}
+
+#spotlight-input {
+  flex: 1;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  background: var(--color-back);
+  color: var(--color-top);
+  padding: 6px 10px;
+}
+
+#spotlight-input:hover { background: var(--color-second); }
+#spotlight-input:focus { box-shadow: var(--shadow-focus); }
+
+#spotlight-suggest { padding: 8px 12px 12px 12px; }
+#spotlight-suggest-container input[type="button"] {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  margin-top: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-back);
+  color: var(--color-top);
+}
+#spotlight-suggest-container input[type="button"].active,
+#spotlight-suggest-container input[type="button"]:hover {
+  background: var(--color-second);
+}
+
+.spotlight-engines { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+.spotlight-engines .search-engine img { width: 16px; height: 16px; }
+
+.spotlight-hint { margin-top: 8px; opacity: var(--opacity-over); }
+.spotlight-hint label { font-size: 12px; color: var(--color-top); }

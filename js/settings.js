@@ -24,6 +24,7 @@ const loadSearchEngineModule = require("../modules/loadSearchEngine.js");
 const loadStartupModule = require("../modules/loadStartup.js");
 const loadTabClosedModule = require("../modules/loadTabClosed.js");
 const loadWinControlsModule = require("../modules/loadWinControls.js");
+const loadSpotlightShortcut = require("../modules/loadSpotlightShortcut.js");
 
 /*
  ###### #    # #    #  ####              ##### #    # ###### #    # ######  ####
@@ -479,6 +480,20 @@ function init() {
   loadLastTab();
   loadDownloadsFolder();
 
+  // Load Spotlight shortcut into dropdown (and add Custom if needed)
+  loadSpotlightShortcut().then((combo) => {
+    const sel = document.getElementById('spotlight-shortcut-select');
+    if (!sel) return;
+    const known = Array.from(sel.options).map(o => o.value);
+    if (!known.includes(combo)) {
+      const opt = document.createElement('option');
+      opt.value = combo;
+      opt.textContent = `Custom: ${combo}`;
+      sel.appendChild(opt);
+    }
+    sel.value = combo;
+  });
+
   ipcRenderer.send("request-set-cache-size");
 }
 
@@ -493,6 +508,17 @@ document.onreadystatechange = () => {
       init();
   }
 };
+
+// Save Spotlight shortcut
+function saveSpotlightShortcut() {
+  const el = document.getElementById('spotlight-shortcut-select');
+  const combo = (el && el.value || '').trim();
+  if (!combo) {
+    ipcRenderer.send("main-addStatusNotif", { type: "warning", text: "Choose a shortcut" });
+    return;
+  }
+  ipcRenderer.send('settings-set-spotlight-shortcut', combo);
+}
 
 /*
  ##### #    # ######    ###### #    # #####

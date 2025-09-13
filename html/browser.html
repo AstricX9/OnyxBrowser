@@ -32,7 +32,7 @@
           <div style="display: none" id="secure-icon" title="Connection is secure"><img src="../imgs/icons16/lock.png"></div>
           <div id="search-div">
             <label id="target-url"></label>
-            <input type="text" placeholder="Search or type a URL" id="search-input" oninput="goToSearch(this.value, this.selectionStart)" onfocus="focusSearch()">
+            <input type="text" placeholder="Search or type a URL" aria-label="Search or type a URL" id="search-input" oninput="goToSearch(this.value, this.selectionStart)" onfocus="focusSearch()">
           </div>
           <button id="bookmark-btn" class="nav-btn with-border" title="Bookmark this page" onclick="createBookmark()"><img name="add-bookmark-16" class="theme-icon"></button>
           <button style="display: none" id="bookmarked-btn" class="nav-btn with-border" title="Show bookmark options for this tab"><img src="../imgs/icons16/bookmarks.png"></button>
@@ -46,7 +46,8 @@
         <button id="find-close-btn" class="nav-btn with-border" title="Find next" onclick="closeFindPanel()"><img name="cancel-16" class="theme-icon"></button>
       </div>
       <div class="title-bar-vr"></div>
-      <button id="home-btn" class="nav-btn" title="Go home" onclick="goHome()" style="display: none;"><img name="home-16" class="theme-icon" oncontextmenu="popupHomePageOptions()"></button>
+  <button id="home-btn" class="nav-btn" title="Go home" onclick="goHome()" style="display: none;"><img name="home-16" class="theme-icon" oncontextmenu="popupHomePageOptions()"></button>
+  <button id="focus-btn" class="nav-btn" title="Toggle Focus Mode (Ctrl/Cmd+Shift+F)" aria-pressed="false" onclick="toggleFocusMode()"><img name="lamp-16" class="theme-icon"></button>
       <button id="menu-btn" class="nav-btn" title="Menu" onclick="requestSideMenu()"><img name="menu-16" class="theme-icon"></button>
     </div>
     
@@ -64,6 +65,35 @@
     </div>
 
     <div id="notif-panel"></div>
+
+    <!-- Spotlight: centered quick search palette -->
+    <div id="spotlight" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Quick Search" style="display:none;">
+      <div class="spotlight-backdrop" aria-hidden="true"></div>
+      <div class="spotlight-panel" role="group">
+        <div class="spotlight-input-row">
+          <img id="spotlight-search-icon" alt="" />
+          <input type="text" id="spotlight-input" placeholder="Search or type a URL" aria-label="Search or type a URL" />
+          <button id="spotlight-clear" class="nav-btn with-border" title="Clear" aria-label="Clear input"></button>
+          <button id="spotlight-go" class="nav-btn with-border" title="Search" aria-label="Search">
+            <img class="theme-icon" name="search-16" />
+          </button>
+        </div>
+        <div id="spotlight-suggest" style="display:none;" class="hide">
+          <div id="spotlight-suggest-container"></div>
+          <div id="spotlight-engines" class="spotlight-engines">
+            <button name="google" class="nav-btn search-engine" title="Google"><img src="../imgs/engines/google.png" alt="Google"></button>
+            <button name="bing" class="nav-btn search-engine" title="Bing"><img src="../imgs/engines/bing.png" alt="Bing"></button>
+            <button name="duckduckgo" class="nav-btn search-engine" title="DuckDuckGo"><img src="../imgs/engines/duckduckgo.png" alt="DuckDuckGo"></button>
+            <button name="wikipedia" class="nav-btn search-engine" title="Wikipedia"><img src="../imgs/engines/wikipedia.png" alt="Wikipedia"></button>
+            <button name="yahoo" class="nav-btn search-engine" title="Yahoo"><img src="../imgs/engines/yahoo.png" alt="Yahoo"></button>
+            <button name="yandex" class="nav-btn search-engine" title="Yandex"><img src="../imgs/engines/yandex.png" alt="Yandex"></button>
+          </div>
+          <div class="spotlight-hint">
+            <label>Tip: Press Esc to close • Ctrl/Cmd+K to toggle</label>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- <center id="find-panel" style="display: none;" class="hide">
       <img name="search-16" class="theme-icon find-panel-icon">

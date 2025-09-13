@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Quick Search</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="../imgs/icon16.png">
+  <link rel="icon" type="image/png" sizes="24x24" href="../imgs/icon24.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../imgs/icon32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../imgs/icon48.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="../imgs/icon64.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../imgs/icon96.png">
+  <link rel="stylesheet" href="../css/modules/webkit.css">
+  <link rel="stylesheet" href="../css/modules/animations.css">
+  <link rel="stylesheet" href="../css/modules/input.css">
+  <style>
+    :root {
+      --panel-width: 720px;
+      --panel-height: 120px;
+    }
+    body { margin: 0; height: 100vh; background: transparent; }
+    #backdrop {
+      position: fixed; inset: 0; background: transparent;
+      display: grid; place-items: center;
+    }
+    #panel {
+      width: var(--panel-width);
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      padding: 16px 16px 8px;
+      background-color: var(--colorBack, #1e1e1e);
+      border: 1px solid var(--colorBorder, rgba(255,255,255,.08));
+      color: var(--colorText, #e6e6e6);
+    }
+    #search-row { display: flex; gap: 8px; align-items: center; }
+    #search-row img { width: 18px; height: 18px; opacity: .9; }
+    #search-input {
+      flex: 1;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--colorBorder, rgba(255,255,255,.1));
+      background: var(--colorBackAlt, rgba(255,255,255,.06));
+      color: inherit;
+      padding: 0 10px;
+      outline: none;
+    }
+    #search-suggest { margin-top: 8px; position: relative; }
+    #search-suggest-container { display: grid; gap: 6px; max-height: 140px; overflow-y: auto; padding-right: 6px; }
+    /* Subtle bottom fade to indicate more content */
+    #search-suggest.scrollable::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 16px; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0), var(--colorBack, #1e1e1e));
+      opacity: 1; transition: opacity .15s ease;
+    }
+    #search-suggest.scrollable.at-bottom::after { opacity: 0; }
+    #search-suggest-container input[type="button"] {
+      height: 30px; border-radius: 6px; border: 1px solid transparent;
+      background: rgba(255,255,255,.06); color: inherit; text-align: left; padding: 0 10px;
+    }
+    #search-suggest-container input.active { border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.09); }
+    #search-engines { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    #search-engines .search-engine { height: 28px; border-radius: 6px; border: 1px solid var(--colorBorder, rgba(255,255,255,.1)); background: rgba(255,255,255,.06); }
+    #search-engines .search-engine.active { outline: 2px solid rgba(255,255,255,.18); }
+    #clear-search-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--colorBorder, rgba(255,255,255,.1)); background: rgba(255,255,255,.06); }
+  </style>
+</head>
+<body>
+  <div id="backdrop">
+    <div id="panel" role="dialog" aria-label="Quick Search">
+    <div id="search-row">
+      <img id="search-icon" alt="engine">
+      <input id="search-input" aria-label="Search or type a URL" placeholder="Search or type a URL" />
+      <button id="clear-search-btn" title="Clear">×</button>
+    </div>
+    <div id="search-suggest" class="hide" style="display: none;">
+      <div id="search-suggest-container"></div>
+      <div id="search-engines">
+        <button name="google" class="search-engine" title="Search with Google"><img src="../imgs/engines/google.png" alt="google"></button>
+        <button name="bing" class="search-engine" title="Search with Bing"><img src="../imgs/engines/bing.png" alt="bing"></button>
+        <button name="duckduckgo" class="search-engine" title="Search with DuckDuckGo"><img src="../imgs/engines/duckduckgo.png" alt="ddg"></button>
+        <button name="wikipedia" class="search-engine" title="Search with Wikipedia"><img src="../imgs/engines/wikipedia.png" alt="wikipedia"></button>
+        <button name="yahoo" class="search-engine" title="Search with Yahoo"><img src="../imgs/engines/yahoo.png" alt="yahoo"></button>
+        <button name="yandex" class="search-engine" title="Search with Yandex"><img src="../imgs/engines/yandex.png" alt="yandex"></button>
+        <button name="mailru" class="search-engine" title="Search with Mail.ru"><img src="../imgs/engines/mailru.png" alt="mailru"></button>
+        <button name="baidu" class="search-engine" title="Search with Baidu"><img src="../imgs/engines/baidu.png" alt="baidu"></button>
+        <button name="naver" class="search-engine" title="Search with Naver"><img src="../imgs/engines/naver.png" alt="naver"></button>
+        <button name="qwant" class="search-engine" title="Search with Qwant"><img src="../imgs/engines/qwant.png" alt="qwant"></button>
+        <button name="youtube" class="search-engine" title="Search with YouTube"><img src="../imgs/engines/youtube.png" alt="youtube"></button>
+        <button name="ecosia" class="search-engine" title="Search with Ecosia"><img src="../imgs/engines/ecosia.png" alt="ecosia"></button>
+        <button name="twitter" class="search-engine" title="Search with Twitter"><img src="../imgs/engines/twitter.png" alt="twitter"></button>
+        <button name="amazon" class="search-engine" title="Search with Amazon"><img src="../imgs/engines/amazon.png" alt="amazon"></button>
+        <button name="twitch" class="search-engine" title="Search with Twitch"><img src="../imgs/engines/twitch.png" alt="twitch"></button>
+        <button name="github" class="search-engine" title="Search with GitHub"><img src="../imgs/engines/github.png" alt="github"></button>
+        <button name="wolfram" class="search-engine" title="Search with WolframAlpha"><img src="../imgs/engines/wolfram.png" alt="wolfram"></button>
+        <button name="ebay" class="search-engine" title="Search with Ebay"><img src="../imgs/engines/ebay.png" alt="ebay"></button>
+        <button name="startpage" class="search-engine" title="Search with Startpage"><img src="../imgs/engines/startpage.png" alt="startpage"></button>
+      </div>
+    </div>
+  </div>
+  </div>
+  <script src="../js/spotlight.js"></script>
+</body>
+</html>
