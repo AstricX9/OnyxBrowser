@@ -89,7 +89,7 @@ body {
 @media (min-width: 900px) {
     body {
         display: grid;
-        grid-template-columns: 32% 1fr;
+        grid-template-columns: 20% 1fr;
         grid-template-rows: auto 1fr;
         grid-template-areas:
             "header header"
@@ -174,38 +174,92 @@ hr {
     #   #    # ###### #    # ######  ####  
 */
 
+#theme-manager {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
 .theme {
-    border-radius: calc(var(--px-radius) + 4px);
-    border: 1px dashed var(--color-border);
-    margin-bottom: 4px;
-    padding: 6px;
-    text-align: center;
+    border-radius: calc(var(--px-radius) + 8px);
+    border: 1px solid var(--color-border);
+    margin-bottom: 0;
+    padding: 16px;
+    text-align: left;
+    background-color: var(--color-element);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.theme-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.theme-previews {
+    display: flex;
+    gap: 12px;
+    justify-content: left;
+}
+
+.theme-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
 
 .theme .nav-checkbox {
-    display: inline-block;
-    width: calc(50% - 28px);
-    margin: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: calc(var(--px-radius) + 4px);
+    background-color: var(--color-second);
+    transition: all 0.2s ease;
+}
+
+.theme .nav-checkbox:hover {
+    background-color: var(--color-border);
+}
+
+.theme .nav-checkbox input[type=radio] {
+    margin: 0;
+    float: none;
 }
   
 .theme-name {
-    display: inline-block;
-    margin: 4px 2px;
-    vertical-align: middle;
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin: 0;
+    color: var(--color-top);
 }
 
 .theme-description {
-    font-size: 10px;
-    display: inline-block;
-    margin: 6px 4px;
-    vertical-align: middle;
+    font-size: 12px;
+    display: block;
+    margin: 0;
+    color: var(--color-top);
+    opacity: 0.7;
 }
 
 .theme-image {
-    vertical-align: top;
-    margin: 6px;
-    box-shadow: 0 0 4px rgba(0, 0, 0, var(--opacity-over));
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: calc(var(--px-radius) + 4px);
+    margin: 0;
+    cursor: pointer;
+    border: 2px solid transparent;
 }
+
 
 /*
  #####   ####  #    # #    # #       ####    ##   #####   ####

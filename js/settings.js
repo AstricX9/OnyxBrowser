@@ -73,19 +73,25 @@ function loadThemesFromFolder() {
           let theme = document.createElement("div");
           theme.classList.add("theme");
           theme.innerHTML = `
-            <label class="theme-name">${themeObj.name}</label>
-            <label class="theme-description">${themeObj.description}</label><br>
-            <img class="theme-image" src="../previews/${themeObj.light.image}" onclick="requestTheme('${fileName}', false)">
-            <img class="theme-image" src="../previews/${themeObj.dark.image}" onclick="requestTheme('${fileName}', true)">
-            <div class="nav-checkbox">
-              <label>Light</label>
-              <input id="${fileName}-light-theme-checkbox" type="radio" onclick="requestTheme(this.value, false)" 
-                class="checkbox" checked name="theme" value="${fileName}" ${lightValue}>
+            <div class="theme-header">
+              <label class="theme-name">${themeObj.name}</label>
+              <label class="theme-description">${themeObj.description}</label>
             </div>
-            <div class="nav-checkbox">
-              <label>Dark</label>
-              <input id="${fileName}-dark-theme-checkbox" type="radio" onclick="requestTheme(this.value, true)" 
-                class="checkbox" name="theme" value="${fileName}" ${darkValue}>
+            <div class="theme-previews">
+              <img class="theme-image" src="../previews/${themeObj.light.image}" onclick="requestTheme('${fileName}', false)" title="Light theme preview">
+              <img class="theme-image" src="../previews/${themeObj.dark.image}" onclick="requestTheme('${fileName}', true)" title="Dark theme preview">
+            </div>
+            <div class="theme-controls">
+              <div class="nav-checkbox">
+                <input id="${fileName}-light-theme-checkbox" type="radio" onclick="requestTheme(this.value, false)" 
+                  class="checkbox" name="theme" value="${fileName}" ${lightValue}>
+                <label>Light</label>
+              </div>
+              <div class="nav-checkbox">
+                <input id="${fileName}-dark-theme-checkbox" type="radio" onclick="requestTheme(this.value, true)" 
+                  class="checkbox" name="theme" value="${fileName}" ${darkValue}>
+                <label>Dark</label>
+              </div>
             </div>
           `;
   
